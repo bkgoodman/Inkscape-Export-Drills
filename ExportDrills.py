@@ -59,7 +59,7 @@ class DrillExport(inkex.Effect):
     # Get the attributes:
     heightDoc = self.svg.unittouu(self.svg.get('height'))
     widthDoc = self.svg.unittouu(self.svg.get('width'))
-    inkex.utils.errormsg(f"Doc units: {doc_unit} docWidth={widthDoc} heightDoc={heightDoc}")
+    #inkex.utils.errormsg(f"Doc units: {doc_unit} docWidth={widthDoc} heightDoc={heightDoc}")
 
     fn = self.options.csvfile
     unit = self.options.unit
