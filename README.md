@@ -1,5 +1,5 @@
 # Inkscape-Export-Drills
-Inkscape extension to export circle drill coordinates to CSV file
+Inkscape extension to export circle drill coordinates to CSV file. This is particularly usefull for taking Inkscape designs (for things like PCBs), which you would then want to drill on something like a CNC milling machine.
 
 # Install
 
