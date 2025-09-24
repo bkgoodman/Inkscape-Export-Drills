@@ -16,6 +16,7 @@
 				<option value="mm">mm</option>
 		</param>
 		<param name="flipy" type="bool"  gui-text="Flip Y (Positive Upward)"></param>
+		<param name="separatedrills" type="bool"  gui-text="Separate files for each dill size"></param>
 	</vbox>
 	<effect>
 		<object-type>all</object-type>
