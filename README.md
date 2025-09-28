@@ -28,3 +28,6 @@ GCode export was designed around Tormach XSTech Router - but at least in theory 
 * Enable optional pecking (if desired)
 * Optional spot/center drilling
 * Specify separate tool numbers for different sizes, and/or center drilling
+
+
+<img width="774" height="804" alt="GCodeExtension" src="https://github.com/user-attachments/assets/926e72ba-3ce4-4f1c-92a6-14a86851791c" />
