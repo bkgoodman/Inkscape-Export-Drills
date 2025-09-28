@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+	<_name>GCode Drills</_name>
+	<id>com.bradgoodman.exportgcodedrills</id>
+
+	<vbox>
+		<label>Parameters</label>
+		<param name="filename" type="path" mode="file_new" filetypes="nc" gui-text="Save To:">drills.nc</param>
+		<param name="scope" gui-text="Find In" type="optiongroup" appearance="combo">
+				<option value="document">Entire Document</option>
+				<option value="layer">Current Layer</option>
+				<option value="selection">Current Selection</option>
+		</param>
+		<param name="unit" gui-text="Units" type="optiongroup" appearance="combo">
+				<option value="in">in</option>
+				<option value="mm">mm</option>
+		</param>
+		<param name="flipy" type="bool"  gui-text="Flip Y (Positive Upward)"></param>
+		<param name="separatedrills" type="bool"  gui-text="Separate files for each drill size"></param>
+		<param name="incrementtools" type="bool"  gui-text="Automatically increment tool number for each size"></param>
+	</vbox>
+	<vbox>
+		<label>GCode</label>
+		<hbox>
+			<vbox>
+				<param name="toolno" type="int" gui-text="Tool #">1</param>
+				<label>(If auto-increment is selected, this is first tool number)</label>
+				<param name="rpm" type="int" gui-text="RPM">5000</param>
+				<param name="zfeed" type="float" precision="1"  min="0.0" gui-text="Z-Feedrate">2</param>
+				<param name="zclear" type="float" precision="3" min='-1000.0' max='1000.0'  gui-text="Z-Clear">0.25</param>
+				<param name="zstart" type="float" precision="3" min='-1000.0' max='1000.0'  gui-text="Z-Start">0</param>
+				<param name="zend" type="float" precision="3"  min='-1000.0' max='1000.0' gui-text="Z-End">-0.025</param>
+				<label>End must be below start - negative negative</label>
+				<param name="peck" type="float" precision="3"  min="0.0" gui-text="Peck">0</param>
+				<label>Peck=0 means no pecking</label>
+				<param name="spottoolno" type="int" min="0" gui-text="Spot Drill Tool Number">0</param>
+				<label>(0 means no spot drill)</label>
+				<param name="spotzend" type="float"  min='-1000.0' max='1000.0' precision="3" gui-text="Spot Drill Depth">0</param>
+				<label>(Z-End - 0 means no spot drill - below start - usually negative)</label>
+			</vbox>
+			
+			 <image>drills.png</image>
+		</hbox>
+	</vbox>
+	<effect>
+		<object-type>all</object-type>
+		<effects-menu>
+			<submenu _name="CNC Tools" />
+		</effects-menu>
+	</effect>
+	<script>
+		<command location="inx" interpreter="python">ExportGcodeDrills.py</command>
+	</script>
+</inkscape-extension>
