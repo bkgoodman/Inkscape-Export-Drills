@@ -42,7 +42,7 @@
 			 <image>drills.png</image>
 		</hbox>
 	</vbox>
-	<effect>
+	<effect needs-live-preview="false">
 		<object-type>all</object-type>
 		<effects-menu>
 			<submenu _name="CNC Tools" />

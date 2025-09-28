@@ -18,7 +18,7 @@
 		<param name="flipy" type="bool"  gui-text="Flip Y (Positive Upward)"></param>
 		<param name="separatedrills" type="bool"  gui-text="Separate files for each dill size"></param>
 	</vbox>
-	<effect>
+	<effect needs-live-preview="false">
 		<object-type>all</object-type>
 		<effects-menu>
 			<submenu _name="CNC Tools" />
