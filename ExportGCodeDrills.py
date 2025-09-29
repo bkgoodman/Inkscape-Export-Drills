@@ -40,12 +40,13 @@ M8 (Flood Coolant ON)
 
 (--- Drill Setup ---)
 G90 G98              (Absolute distance, return to initial plane)
+F {z_feed}
 
-G0 {firstpos}        (Go to first hole before plunging)
-G0 Z{z_start}        (Go to and establish drill start position, height)
+G0 {firstpos}        (Hole 1)
+G0 Z{z_clear}        (Start down - rapid)   
 
 (--- Start {cycle} Cycle ---)
-{g_drillcmd} Z{z_end} R{z_clear} {g_peck} F{z_feed}  (define and begin drill)
+{g_drillcmd} Z{z_end} R{z_clear} {g_peck} (define and begin drill)
 
 """
 
@@ -237,6 +238,11 @@ class DrillExport(inkex.Effect):
         inkex.utils.errormsg("Z-End must be BELOW Z-Start. (Z-End should often be negative)")
         return
 
+    if (self.options.spottoolno != 0) and (self.options.spotzend):
+        if (self.options.zstart <= self.options.spotzend):
+            inkex.utils.errormsg("Spot Z-End must be BELOW Z-Start. (Spot Z-End should often be negative)")
+            return
+
     if (len(circle_groups) == 0):
         inkex.utils.errormsg("No circles found in the specified scope.")
     else:
@@ -269,8 +275,11 @@ class DrillExport(inkex.Effect):
                             g_peck=op['peck'],
                             g_rpm=g_rpm,
                             toolno=toolno))
-                        for hole in hole_list:
+
+                        # First hole done as part of "gcode_drill_start", above - skip it
+                        for hole in hole_list[1:]:
                             ncfile.write(f"X{hole['cx']} Y{hole['cy']}\n")
+
                         ncfile.write(gcode_drill_end.format(z_clear=z_clear))
                     ncfile.write(gcode_footer)
                 if (self.options.incrementtools == "true"):
@@ -313,6 +322,8 @@ class DrillExport(inkex.Effect):
                                 firstpos=f"X{hole_list[0]['cx']} Y{hole_list[0]['cy']}",
                                 g_rpm=g_rpm,
                                 toolno=t))
+                            # Remove first hole from list, because we're already doing it here
+                            hole_list = hole_list[1:]
 
                         for hole in hole_list:
                             ncfile.write(f"X{hole['cx']} Y{hole['cy']}\n")
