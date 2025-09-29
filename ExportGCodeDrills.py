@@ -63,6 +63,52 @@ hole_list_like = """
 X1.0000 Y1.0000
 """
 
+def distance(a, b):
+    """Euclidean distance using cx/cy fields."""
+    return math.hypot(float(a["cx"]) - float(b["cx"]), float(a["cy"]) - float(b["cy"]))
+
+hole_index=1
+
+# For debug only
+def mark_hole(hole):
+    return
+    global hole_index
+    txt = inkex.TextElement()
+    txt.text = f"{hole_index}"          # the actual string
+
+    cx = float(hole.get('cx',0))
+    cy = float(hole.get('cy',0))
+    r = float(hole.get('r',0))
+    txt.set('x', str((cx+r)*29))
+    txt.set('y', str(cy*29))
+    txt.style = {
+        'font-size': '12px',
+        'fill': '#000000',
+        'text-anchor': 'start',      
+        'dominant-baseline': 'middle' # center align vertically
+    }
+    hole_index = hole_index+1
+    hole['circle'].getparent().add(txt)
+
+# Sort holes so drills happen near each other
+def nearest_neighbor(holes, start_index=0):
+    """Return a reordered list of hole dicts (visit order)."""
+    if not holes:
+        return []
+
+    unvisited = list(range(len(holes)))
+    path = [start_index]
+    unvisited.remove(start_index)
+
+    while unvisited:
+        last = path[-1]
+        next_idx = min(unvisited, key=lambda j: distance(holes[last], holes[j]))
+        path.append(next_idx)
+        unvisited.remove(next_idx)
+
+    # Return the holes in sorted visiting order
+    return [holes[i] for i in path]
+
 class DrillExport(inkex.Effect):
   def __init__(self):
       # Call the base class constructor.
@@ -132,6 +178,7 @@ class DrillExport(inkex.Effect):
             "d": formatted_d,
             "cx": formatted_cx,
             "cy": formatted_cy,
+            "circle" : circle
             })
 
   def find_circles_recursively(self, root_node, circle_groups):
@@ -151,6 +198,9 @@ class DrillExport(inkex.Effect):
             self.find_circles_recursively(child, circle_groups)
 
   def effect(self):
+    global hole_index
+
+    hole_index=1
     #log ("This is a test")
     svg = self.document.getroot()
     
@@ -249,6 +299,7 @@ class DrillExport(inkex.Effect):
         if separatedrills == "true":
             # One CSV per radius
             for d, hole_list in circle_groups.items():
+                hole_list = nearest_neighbor(hole_list) # Sort
                 base,ext = os.path.splitext(fn)
                 if not ext:
                     ext = ".csv"
@@ -275,10 +326,12 @@ class DrillExport(inkex.Effect):
                             g_peck=op['peck'],
                             g_rpm=g_rpm,
                             toolno=toolno))
+                        mark_hole(hole_list[0])
 
                         # First hole done as part of "gcode_drill_start", above - skip it
                         for hole in hole_list[1:]:
                             ncfile.write(f"X{hole['cx']} Y{hole['cy']}\n")
+                            mark_hole(hole)
 
                         ncfile.write(gcode_drill_end.format(z_clear=z_clear))
                     ncfile.write(gcode_footer)
@@ -310,6 +363,7 @@ class DrillExport(inkex.Effect):
                         # (i.e. don't change for every different spot drill diameter
 
                         hole_list = circle_groups[d]
+                        hole_list = nearest_neighbor(hole_list) # Sort
                         if not op['spot'] or not first_drill:
                             first_drill = True
                             ncfile.write(gcode_drill_start.format(z_start=z_start,
@@ -322,11 +376,13 @@ class DrillExport(inkex.Effect):
                                 firstpos=f"X{hole_list[0]['cx']} Y{hole_list[0]['cy']}",
                                 g_rpm=g_rpm,
                                 toolno=t))
+                            mark_hole(hole_list[0])
                             # Remove first hole from list, because we're already doing it here
                             hole_list = hole_list[1:]
 
                         for hole in hole_list:
                             ncfile.write(f"X{hole['cx']} Y{hole['cy']}\n")
+                            mark_hole(hole)
                         # We'll end spot drills after ALL diameters done
                         if not op['spot']:
                             ncfile.write(gcode_drill_end.format(z_clear=z_clear))
